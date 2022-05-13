@@ -6,5 +6,5 @@ x = np.linspace(-8, 8, 1000)
 df = pd.DataFrame(dict(y=np.sin(x)))
 st.line_chart(df)
 """
-привет
+привет нет блин пока
 """
