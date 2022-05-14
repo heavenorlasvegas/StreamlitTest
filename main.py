@@ -78,46 +78,46 @@ with st.echo(code_location='below'):
 
 
 
-        elif visualization == "Особенности песен":
-            col1, col2 = st.columns(2)
-            with col1:
-                x_axis = st.selectbox("Ось Х", sorted(charact_list), index=0)
-            with col2:
-                y_axis = st.selectbox("Ось Y", sorted(charact_list), index=6)
-            year = st.slider("Год попадания песни в топ", min_value=2010, value=(2018, 2019), max_value=2019)
+    elif visualization == "Особенности песен":
+        col1, col2 = st.columns(2)
+        with col1:
+            x_axis = st.selectbox("Ось Х", sorted(charact_list), index=0)
+        with col2:
+            y_axis = st.selectbox("Ось Y", sorted(charact_list), index=6)
+        year = st.slider("Год попадания песни в топ", min_value=2010, value=(2018, 2019), max_value=2019)
 
-            yearly_data = df[(df["top year"] >= year[0]) & (df["top year"] <= year[1])]
-            fig = px.scatter(yearly_data,
-                             x=x_axis,
-                             y=y_axis,
-                             size=yearly_data["pop"] - 35,
-                             color="wide_genre",
-                             color_discrete_sequence=px.colors.qualitative.Pastel,
-                             width=800,
-                             height=600,
-                             category_orders={"wide_genre": sorted(wide_genres_ru) + ["другой жанр"]},
-                             custom_data=["artist", "year released", "title", "pop"],
-                             labels=dict(wide_genre="Жанр"),
-                             size_max=15,
-                             template="simple_white"
-                            )
-            fig.update_traces(
-                hovertemplate="<br>".join([
-                    "<b>%{customdata[2]}</b>",
-                    "%{customdata[0]}",
-                    "",
-                    x_axis + ": %{x:.2f}",
-                    y_axis + ": %{y:.2f}",
-                    "Популярность: %{customdata[3]}",
-                    "Год релиза: %{customdata[1]}"
-                ])
-            )
+        yearly_data = df[(df["top year"] >= year[0]) & (df["top year"] <= year[1])]
+        fig = px.scatter(yearly_data,
+                         x=x_axis,
+                         y=y_axis,
+                         size=yearly_data["pop"] - 35,
+                         color="wide_genre",
+                         color_discrete_sequence=px.colors.qualitative.Pastel,
+                         width=800,
+                         height=600,
+                         category_orders={"wide_genre": sorted(wide_genres_ru) + ["другой жанр"]},
+                         custom_data=["artist", "year released", "title", "pop"],
+                         labels=dict(wide_genre="Жанр"),
+                         size_max=15,
+                         template="simple_white"
+                        )
+        fig.update_traces(
+            hovertemplate="<br>".join([
+                "<b>%{customdata[2]}</b>",
+                "%{customdata[0]}",
+                "",
+                x_axis + ": %{x:.2f}",
+                y_axis + ": %{y:.2f}",
+                "Популярность: %{customdata[3]}",
+                "Год релиза: %{customdata[1]}"
+            ])
+        )
 
-            st.plotly_chart(fig)
+        st.plotly_chart(fig)
 
-        elif visualization == "Датасет":
-            st.write(df)
-            x = 4
+    elif visualization == "Датасет":
+        st.write(df)
+        x = 4
 
     st.markdown("***")
     """
