@@ -31,15 +31,16 @@ with st.echo(code_location='below'):
 
     if visualization == "Тренды в музыке":
         st.markdown("# Тренды в музыке")
-        st.markdown("В течение 2010-х годов слушатели стали выше ценить как танцевальные и "
-                    "речитативные, так и акустические композиции, а средняя длительность и энергичность популярных "
-                    "песен сократилась.")
 
         st.write("Ежегодно стриминговая платформа Spotify определяет 100 наиболее прослушиваемых песен. "
                  "Визуализация с использованием `altair` показывает, как на протяжении 2010–2019 годов изменялись "
                  "их средние характеристики. Музыкальные особенности, такие как энергия и танцевальность, определены "
                  "алгоритмами Spotify и приведены к шкалам, в которых 90 % песен характеризуется значениями от 0 до "
                  "100. ")
+
+        st.markdown("Визуализация показывает, что в течение 2010-х годов слушатели стали выше ценить как танцевальные "
+                    "и речитативные, так и акустические композиции, а средняя длительность и энергичность популярных "
+                    "песен сократилась.")
 
         characteristics = np.array(st.multiselect("Выберите одну или несколько характеристик:", sorted(charact_list),
                                                   default=["Танцевальность", "Акустичность",
@@ -87,18 +88,12 @@ with st.echo(code_location='below'):
         year = st.slider("Год попадания песни в топ", min_value=2010, value=(2018, 2019), max_value=2019)
         yearly_data = df[(df["top year"] >= year[0]) & (df["top year"] <= year[1])]
         fig = px.scatter(yearly_data,
-                         x=x_axis,
-                         y=y_axis,
-                         size=yearly_data["pop"] - 35,
-                         color="wide_genre",
-                         color_discrete_sequence=px.colors.qualitative.Pastel,
-                         width=800,
-                         height=600,
+                         x=x_axis, y=y_axis, size=yearly_data["pop"] - 35,
+                         color="wide_genre", color_discrete_sequence=px.colors.qualitative.Pastel,
+                         width=800, height=600,
                          category_orders={"wide_genre": sorted(wide_genres_ru) + ["другой жанр"]},
                          custom_data=["artist", "year released", "title", "pop"],
-                         labels=dict(wide_genre="Жанр"),
-                         size_max=15,
-                         template="simple_white")
+                         labels=dict(wide_genre="Жанр"), size_max=15, template="simple_white")
         fig.update_traces(
             hovertemplate="<br>".join([
                 "<b>%{customdata[2]}</b>",
