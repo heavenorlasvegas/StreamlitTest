@@ -4,13 +4,25 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import altair as alt
+import plotly.express as px
 
 with st.echo(code_location='below'):
-    SpotifyData = pd.read_csv('Spotify_data.csv')
-    df = SpotifyData
+    df = pd.read_csv('Spotify_data.csv')
+    wide_genres = ["country", "folk", "rock", "rap", "pop", "hip hop"]
+    wide_genres_ru = ["кантри", "фолк", "рок", "рэп", "поп", "хип-хоп"]
+
+    def detect_genre(top_genre):
+        for genre in wide_genres:
+            if top_genre.find(genre) >= 0:
+                return wide_genres_ru[wide_genres.index(genre)]
+        return "другой жанр"
+
+    df["wide_genre"] = df["top genre"].dropna().map(detect_genre)
+
     st.sidebar.title("🎶 Музыка 2010-х")
-    visualization = st.sidebar.radio("Выберите визуализацию:", ["Тренды в музыке", "Особенности песен", "Топ жанров",
-                                                                "Топ артистов", "Датасет"])
+    visualization = st.sidebar.radio("Выберите визуализацию:", ["Тренды в музыке", "Особенности песен",
+                                                                "Особенности жанров", "Топ артистов", "Датасет"],
+                                     index=1)
 
     charact_codes = ["bpm", "nrgy", "dnce", "dB", "dur", "live", "val", "acous", "spch"]
     charact_list = ["Темп (bpm)", "Энергия", "Танцевальность", "Громкость", "Длительность (в секундах)",
@@ -18,7 +30,7 @@ with st.echo(code_location='below'):
     df = df.rename(columns=dict(zip(charact_codes, charact_list)))
     for ch in ["Энергия", "Танцевальность", "Громкость",       # нормализация характеристик
                     "Живое исполнение", "Жизнерадостность", "Акустичность", "Речитативность"]:
-        df[ch] = 100 * (df[ch] - df[ch].quantile(0.1)) / (df[ch].quantile(0.9) - df[ch].quantile(0.1))
+        df[ch] = 100 * (df[ch] - df[ch].quantile(0.05)) / (df[ch].quantile(0.95) - df[ch].quantile(0.05))
 
 
     match visualization:
@@ -31,10 +43,10 @@ with st.echo(code_location='below'):
             st.write("Ежегодно стриминговая платформа Spotify определяет 100 наиболее прослушиваемых песен. "
                      "Визуализация показывает, как на протяжении 2010–2019 годов изменялись их средние характеристики. "
                      "Музыкальные особенности, такие как энергия и танцевальность, определены алгоритмами Spotify и "
-                     "приведены к шкалам, в которых большинство песен характеризуется значениями от 0 до 100. "
+                     "приведены к шкалам, в которых 90 % песен характеризуется значениями от 0 до 100. "
                      )
 
-            characteristics = np.array(st.multiselect("Выберите одну или несколько характеристик:", charact_list,
+            characteristics = np.array(st.multiselect("Выберите одну или несколько характеристик:", sorted(charact_list),
                                                       default=["Танцевальность", "Акустичность",
                                                                "Длительность (в секундах)"]))
             source = pd.DataFrame()
@@ -68,8 +80,45 @@ with st.echo(code_location='below'):
 
 
 
+        case "Особенности песен":
+            col1, col2 = st.columns(2)
+            with col1:
+                x_axis = st.selectbox("Ось Х", sorted(charact_list), index=0)
+            with col2:
+                y_axis = st.selectbox("Ось Y", sorted(charact_list), index=6)
+            year = st.slider("Год попадания песни в топ", min_value=2010, value=(2018, 2019), max_value=2019)
+
+            yearly_data = df[(df["top year"] >= year[0]) & (df["top year"] <= year[1])]
+            fig = px.scatter(yearly_data,
+                             x=x_axis,
+                             y=y_axis,
+                             size=yearly_data["pop"] - 35,
+                             color="wide_genre",
+                             color_discrete_sequence=px.colors.qualitative.Pastel,
+                             width=800,
+                             height=600,
+                             category_orders={"wide_genre": sorted(wide_genres_ru) + ["другой жанр"]},
+                             custom_data=["artist", "year released", "title", "pop"],
+                             labels=dict(wide_genre="Жанр"),
+                             size_max=15,
+                             template="simple_white"
+                            )
+            fig.update_traces(
+                hovertemplate="<br>".join([
+                    "<b>%{customdata[2]}</b>",
+                    "%{customdata[0]}",
+                    "",
+                    x_axis + ": %{x:.2f}",
+                    y_axis + ": %{y:.2f}",
+                    "Популярность: %{customdata[3]}",
+                    "Год релиза: %{customdata[1]}"
+                ])
+            )
+
+            st.plotly_chart(fig)
+
         case "Датасет":
-            st.write(SpotifyData)
+            st.write(df)
 
     st.markdown("***")
     """
