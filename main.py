@@ -119,6 +119,7 @@ with st.echo(code_location='below'):
 
         case "Датасет":
             st.write(df)
+            x = 4
 
     st.markdown("***")
     """
