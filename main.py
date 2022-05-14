@@ -33,9 +33,7 @@ with st.echo(code_location='below'):
         df[ch] = 100 * (df[ch] - df[ch].quantile(0.05)) / (df[ch].quantile(0.95) - df[ch].quantile(0.05))
 
 
-    match visualization:
-
-        case "Тренды в музыке":
+    if visualization == "Тренды в музыке":
             st.markdown("# Тренды в музыке")
             st.markdown("### В течение 2010-х годов слушатели стали выше ценить как танцевальные и "
                         "речитативные, так и акустические композиции, а средняя длительность и энергичность популярных "
@@ -80,7 +78,7 @@ with st.echo(code_location='below'):
 
 
 
-        case "Особенности песен":
+        elif visualization == "Особенности песен":
             col1, col2 = st.columns(2)
             with col1:
                 x_axis = st.selectbox("Ось Х", sorted(charact_list), index=0)
@@ -117,7 +115,7 @@ with st.echo(code_location='below'):
 
             st.plotly_chart(fig)
 
-        case "Датасет":
+        elif visualization == "Датасет":
             st.write(df)
             x = 4
 
